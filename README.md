@@ -1,8 +1,8 @@
 - 👋 Hi, I’m @KNFLD
 - 👀 I’m interested in ... ppooll for Max MSP
+-  Here you find all my ports and acts for ppooll feel free to use and edit as you wish 
 
-
-- 📫 How to reach me ... knfld@outlook.com
+-How to reach me ... knfld@outlook.com
 
 <!---
 KNFLD/KNFLD is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
