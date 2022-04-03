@@ -1,6 +1,6 @@
-- 👋 Hi, I’m @KNFLD
-- 👀 I’m interested in ... ppooll for Max MSP
--  Here you find all my ports and acts for ppooll feel free to use and edit as you wish 
+-  Hi, I’m @KNFLD
+-  I’m interested in ... ppooll for Max MSP
+-  Here you find all my ports and acts for ppooll, feel free to use and edit as you wish 
 
 -How to reach me ... knfld@outlook.com
 
