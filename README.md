@@ -8,8 +8,8 @@
 
 -  some ports here will require the following packages:
 
-@'s:                           Package:
-ts.ingran/ts.grantap = TS.modular 
+
+ts.ingran/ts.grantap. = TS.modular 
 gf.graindelay/gf.sustain = Grainflow
 rnbo_@'s = RNBO Pedal Package 
 
