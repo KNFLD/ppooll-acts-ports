@@ -9,14 +9,14 @@
 -  some ports here will require the following packages:
 
 
-ts.ingran/ts.grantap. = TS.modular
--
+- ts.ingran/ts.grantap. = TS.modular
 
-gf.graindelay/gf.sustain = Grainflow
--
 
-rnbo_@'s = RNBO Pedal Package 
--
+- gf.graindelay/gf.sustain = Grainflow
+
+
+- rnbo_@'s = RNBO Pedal Package
+
 
 
  -How to reach me ... knfld@outlook.com or via THE PPOOLL discord channel!
