@@ -6,7 +6,7 @@
 
 -  some acts may present errors with newer versions of ppooll.
 
--  some ports here which require the following packages:
+-  some ports here will require the following packages:
 
 @'s:                           Package:
 ts.ingran/ts.grantap = TS.modular 
