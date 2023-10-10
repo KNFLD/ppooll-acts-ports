@@ -4,7 +4,16 @@
 
 -  any ports/borrowed patches will state the developers within the main act subpatch.
 
--  some acts may present errors with newer versions of ppooll. 
+-  some acts may present errors with newer versions of ppooll.
+
+-  some ports here which require the following packages:
+
+@'s:                           Package:
+ts.ingran/ts.grantap = TS.modular 
+gf.graindelay/gf.sustain = Grainflow
+rnbo_@'s = RNBO Pedal Package 
+
+
 
  -How to reach me ... knfld@outlook.com or via THE PPOOLL discord channel!
 
