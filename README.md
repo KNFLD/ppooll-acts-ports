@@ -6,8 +6,8 @@
 
 -  some acts may present errors with newer versions of ppooll.
 
--  some ports here will require the following packages:
-
+   some ports here will require the following packages:
+   -
 
 - ts.ingran/ts.grantap. = TS.modular
 
@@ -19,7 +19,7 @@
 
 
 
- -How to reach me ... knfld@outlook.com or via THE PPOOLL discord channel!
+- How to reach me ... knfld@outlook.com or via THE PPOOLL discord channel!
 
 <!---
 KNFLD/KNFLD is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
