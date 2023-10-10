@@ -1,6 +1,10 @@
 -  Hi, I’m @KNFLD
 -  I’m interested in ... ppooll for Max MSP
--  Here you can find all my ports and acts for ppooll, feel free to use and edit as you wish. 
+-  Here you can find all my ports and acts for ppooll, feel free to use and edit as you wish.
+
+-  any ports/borrowed patches will state the developers within the main act subpatch.
+
+-  some acts may present errors with newer versions of ppooll. 
 
  -How to reach me ... knfld@outlook.com or via THE PPOOLL discord channel!
 
