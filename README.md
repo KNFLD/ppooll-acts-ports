@@ -10,14 +10,16 @@ Hi, I’m @KNFLD
    some ports here will require the following packages:
    -
 
-- ts.ingran/ts.grantap. = TS.modular
+- ts.@'s = TS.modular
 
 
-- gf.graindelay/gf.sustain = Grainflow
+- gf.@'s = Grainflow
 
 
 - rnbo_@'s = RNBO Pedal Package
 
+
+- vb.stretch = vb-objects 
 
 
 How to reach me ... knfld@outlook.com or via THE PPOOLL discord channel!
