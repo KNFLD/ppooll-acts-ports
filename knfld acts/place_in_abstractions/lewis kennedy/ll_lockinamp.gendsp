@@ -1,0 +1,101 @@
+{
+    "patcher": {
+        "fileversion": 1,
+        "appversion": {
+            "major": 9,
+            "minor": 1,
+            "revision": 4,
+            "architecture": "x64",
+            "modernui": 1
+        },
+        "classnamespace": "dsp.gen",
+        "rect": [ 59.0, 106.0, 813.0, 600.0 ],
+        "boxes": [
+            {
+                "box": {
+                    "id": "obj-9",
+                    "maxclass": "comment",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 129.0, 7.0, 524.0, 20.0 ],
+                    "text": "a rough codebox approximation of a classic test equiptment lock in amplifier using gen~ codebox"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-7",
+                    "maxclass": "newobj",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 771.0, 569.0, 35.0, 22.0 ],
+                    "text": "out 2"
+                }
+            },
+            {
+                "box": {
+                    "code": "Param ref_freq;\nParam sensitivity;\nParam drive;        \nParam shape;        \nParam gate_decay;   \n\nHistory phase;\nHistory hist_I;\nHistory hist_Q;\nHistory hist_gate;  \n\nomega = ref_freq * TWOPI / SAMPLERATE;\nphase = mod(phase + omega, TWOPI);\nref_sin = sin(phase);\nref_cos = cos(phase);\n\ndemod_I = in1 * ref_sin;\ndemod_Q = in1 * ref_cos;\n\ncoef = clamp(sensitivity * sensitivity, 0.001, 0.999);\nfiltered_I = hist_I + coef * (demod_I - hist_I);\nfiltered_Q = hist_Q + coef * (demod_Q - hist_Q);\n\nhist_I = filtered_I;\nhist_Q = filtered_Q;\n\nmagnitude = sqrt((filtered_I * filtered_I) + (filtered_Q * filtered_Q));\n\nthreshold = (1.0 - sensitivity) * 0.5;\nraw_gate = (magnitude < threshold) ? 0.0 : 1.0;\n\ndecay_coef = 1.0 - clamp(gate_decay, 0.0, 0.999);\ntarget_coef = (raw_gate > hist_gate) ? 1.0 : decay_coef;\n\nsmoothed_gate = hist_gate + target_coef * (raw_gate - hist_gate);\nhist_gate = smoothed_gate; \n\ndriven_signal = magnitude * (1.0 + drive * 10.0);\n\nhard_clipped = clamp(driven_signal, -1.0, 1.0);\nfold_amount = 1.0 + shape * 7.0;                 \nfolded = sin(driven_signal * fold_amount);        \nfinal_distortion = hard_clipped + shape * (folded - hard_clipped);   \n\nout1 = in1 + smoothed_gate * (final_distortion - in1);\n\nout2 = smoothed_gate;\n",
+                    "fontface": 0,
+                    "fontname": "<Monospaced>",
+                    "fontsize": 12.0,
+                    "id": "obj-5",
+                    "maxclass": "codebox",
+                    "numinlets": 1,
+                    "numoutlets": 2,
+                    "outlettype": [ "", "" ],
+                    "patching_rect": [ 17.0, 45.0, 773.0, 511.0 ]
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-6",
+                    "maxclass": "newobj",
+                    "numinlets": 0,
+                    "numoutlets": 1,
+                    "outlettype": [ "" ],
+                    "patching_rect": [ 17.0, 6.0, 28.0, 22.0 ],
+                    "text": "in 1"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-8",
+                    "maxclass": "newobj",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 17.0, 569.0, 35.0, 22.0 ],
+                    "text": "out 1"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-4",
+                    "maxclass": "newobj",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 176.0, 418.0, 35.0, 22.0 ],
+                    "text": "out 1"
+                }
+            }
+        ],
+        "lines": [
+            {
+                "patchline": {
+                    "destination": [ "obj-7", 0 ],
+                    "source": [ "obj-5", 1 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-8", 0 ],
+                    "source": [ "obj-5", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-5", 0 ],
+                    "source": [ "obj-6", 0 ]
+                }
+            }
+        ]
+    }
+}

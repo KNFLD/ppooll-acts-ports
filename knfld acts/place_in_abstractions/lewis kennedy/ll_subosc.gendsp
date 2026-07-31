@@ -1,0 +1,88 @@
+{
+    "patcher": {
+        "fileversion": 1,
+        "appversion": {
+            "major": 9,
+            "minor": 1,
+            "revision": 4,
+            "architecture": "x64",
+            "modernui": 1
+        },
+        "classnamespace": "dsp.gen",
+        "rect": [ 59.0, 106.0, 609.0, 583.0 ],
+        "lefttoolbarpinned": 2,
+        "toptoolbarpinned": 2,
+        "righttoolbarpinned": 2,
+        "toolbars_unpinned_last_save": 7,
+        "subpatcher_template": "max5-like",
+        "cluebar": 2,
+        "boxes": [
+            {
+                "box": {
+                    "id": "obj-2",
+                    "maxclass": "newobj",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 371.0, 308.0, 35.0, 22.0 ],
+                    "text": "out 2"
+                }
+            },
+            {
+                "box": {
+                    "code": "Param sub_level(1, min=0, max=2);\nParam octave_down(0, min=0, max=1);\nParam sensitivity(0.02, min=0.001, max=0.2);\nParam duck_amount(0.4, min=0, max=1);\n\nHistory hp_state(0);\nHistory hp_prev_in(0);\nHistory lp_state(0);\nHistory prev_track(0);\nHistory period_counter(0);\nHistory smoothed_freq(60);\nHistory bass_env(0);\nHistory gate_smooth(0);\nHistory phase_sub(0);\n\n// Strict Sub-Bass Only Calibration\nsr = 44100;\ntrack_lo = 20;         // Floor of human hearing\ntrack_hi = 90;         // AGGRESSIVE low-pass filter to kill all high/mid sample bleed\nmin_freq = 20;         // Lowest allowable sub note (~E0)\nmax_freq = 100;        // HARD CEILING: Tracker ignores anything above a bass G2\nattack_ms = 2;         \nrelease_ms = 80;       \nfreq_glide_ms = 25;    // Slightly slower glide to iron out accidental pitch jumps\ngate_smooth_ms = 20;   \nlog2e = 1.4426950409986907;\n\nin_sig = in1;\n\n// Phase-aligned Input Stage Filtering\nhp_a = exp2(-2 * 3.14159265 * track_lo / sr * log2e);\nhp_out = hp_a * (hp_state + in_sig - hp_prev_in);\nhp_state = hp_out;\nhp_prev_in = in_sig;\n\nlp_a = exp2(-2 * 3.14159265 * track_hi / sr * log2e);\ntrack_sig = (1 - lp_a) * hp_out + lp_a * lp_state;\nlp_state = track_sig;\n\n// Period Counter Analysis\nperiod_counter = period_counter + 1;\nmin_period = sr / max_freq;\nmax_period = sr / min_freq;\n\ndetected_freq = smoothed_freq;\n\nif (prev_track <= 0 && track_sig > 0 && period_counter >= min_period) {\n    if (period_counter <= max_period) {\n        detected_freq = sr / period_counter;\n    }\n    period_counter = 0;\n}\nprev_track = track_sig;\n\n// Glide Integration\nglide_a = exp2(-2 * 3.14159265 * (1000 / freq_glide_ms) / sr * log2e);\nsmoothed_freq = (1 - glide_a) * detected_freq + glide_a * smoothed_freq;\n\n// Envelope Tracking\nabs_in = track_sig;\nif (abs_in < 0) {\n    abs_in = -abs_in;\n}\n\natk_a = exp2(-2 * 3.14159265 * (1000 / attack_ms) / sr * log2e);\nrel_a = exp2(-2 * 3.14159265 * (1000 / release_ms) / sr * log2e);\nenv_a = rel_a;\nif (abs_in > bass_env) {\n    env_a = atk_a;\n}\nbass_env = (1 - env_a) * abs_in + env_a * bass_env;\n\n// Gate Target Status\ngate_target = 0;\nif (bass_env > sensitivity) {\n    gate_target = 1;\n}\ngate_a = exp2(-2 * 3.14159265 * (1000 / gate_smooth_ms) / sr * log2e);\ngate_smooth = (1 - gate_a) * gate_target + gate_a * gate_smooth;\n\n// Absolute Low-End Safety Clamp\ntarget_freq = smoothed_freq;\n\nif (gate_target == 0) {\n    target_freq = 0; \n}\n\nif (octave_down > 0) {\n    target_freq = target_freq * 0.5;\n}\n\n// HARD BRICKWALL CLAMP: Oscillator mathematically cannot go above 120Hz\ntarget_freq = clip(target_freq, 0, 120);\n\n// Sub-Oscillator Phase Accumulator\nphase_sub = phase_sub + (target_freq / sr);\nif (phase_sub >= 1) {\n    phase_sub = phase_sub - 1;\n}\nsub_sine = sin(phase_sub * 2 * 3.14159265);\n\n// Mix Stage\nsub_out = sub_sine * bass_env * gate_smooth * sub_level;\ndry_out = in_sig - (track_sig * duck_amount * gate_smooth);\n\n// --- TWO OUTLET OUTPUT ---\nout1 = fixnan(dry_out + sub_out); // Main Mix (Ducked Original + Sub Generator)\nout2 = fixnan(sub_out);           // Isolated Sub-Oscillator Only\n",
+                    "fontface": 0,
+                    "fontname": "<Monospaced>",
+                    "fontsize": 12.0,
+                    "id": "obj-5",
+                    "maxclass": "codebox",
+                    "numinlets": 1,
+                    "numoutlets": 2,
+                    "outlettype": [ "", "" ],
+                    "patching_rect": [ 50.0, 64.0, 340.0, 200.0 ]
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-1",
+                    "maxclass": "newobj",
+                    "numinlets": 0,
+                    "numoutlets": 1,
+                    "outlettype": [ "" ],
+                    "patching_rect": [ 50.0, 14.0, 28.0, 22.0 ],
+                    "text": "in 1"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-4",
+                    "maxclass": "newobj",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 50.0, 308.0, 35.0, 22.0 ],
+                    "text": "out 1"
+                }
+            }
+        ],
+        "lines": [
+            {
+                "patchline": {
+                    "destination": [ "obj-5", 0 ],
+                    "source": [ "obj-1", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-2", 0 ],
+                    "source": [ "obj-5", 1 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-4", 0 ],
+                    "source": [ "obj-5", 0 ]
+                }
+            }
+        ],
+        "autosave": 0
+    }
+}

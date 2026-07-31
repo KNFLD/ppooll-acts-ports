@@ -1,0 +1,65 @@
+{
+    "patcher": {
+        "fileversion": 1,
+        "appversion": {
+            "major": 9,
+            "minor": 1,
+            "revision": 4,
+            "architecture": "x64",
+            "modernui": 1
+        },
+        "classnamespace": "dsp.gen",
+        "rect": [ 59.0, 106.0, 529.0, 450.0 ],
+        "boxes": [
+            {
+                "box": {
+                    "code": "/*\n\t==========================================================\n\t Real-Time Distortion + Digital Fragmentation Effect\n\t gen~ codebox — single parameter: destruction (0-100)\n\t==========================================================\n\t\r\n*/\n\n// ---------------- Parameter ----------------\nParam destruction(0, 0, 100); // 0 = clean passthrough, 100 = fully fragmented\n\n// ---------------- Persistent state ----------------\nHistory dropoutHold;     // samples remaining in current dropout\nHistory dropoutEnv(1);   // smoothed dropout gate, starts OPEN (no silence at t=0)\n\n// ==========================================================\n// 1. Normalize control parameter\n// ==========================================================\nd = clamp(destruction * 0.01, 0, 1); // 0..1, drives every stage below\n\n// ==========================================================\n// 2. Wave-shaping distortion — exact bypass at d==0\n// ==========================================================\ndriveAmt = 1 + 9*d;         // == 1 at d=0 (no gain applied)\ndriven = in1 * driveAmt;\n\nsoftShape = tanh(driven);\nhardShape = clamp(driven, -1, 1);\n\nhardness = d;\nshaped = softShape*(1 - hardness) + hardShape*hardness;\n\nshapeMix = d;                              // == 0 at d=0\ndistorted = in1*(1 - shapeMix) + shaped*shapeMix; // == in1 exactly at d=0\n\n// ==========================================================\n// 3. Random dropouts — bit-exact zero probability at d==0\n//    dropoutChance now scales ONLY with d (no additive floor),\n//    so at d=0 it evaluates to exactly 0.0. startDropout is\n//    further hard-gated by (d > 0) as a redundant safety net.\n// ==========================================================\nrndTrig = abs(noise());\nrndLen  = abs(noise());\n\ndropoutChance = 0.00028 * d * d;   // exactly 0 when d = 0\n\nstartDropout = (d > 0) * (dropoutHold <= 0) * (rndTrig < dropoutChance);\n\ndropoutLen = (samplerate*0.01) + rndLen*samplerate*0.25*(1 + 2*d);\n\ndropoutHold = startDropout*dropoutLen + (1 - startDropout)*max(dropoutHold - 1, 0);\n\ndropoutTarget = (dropoutHold > 0) ? 0 : 1;\ndropoutEnv = dropoutEnv + (dropoutTarget - dropoutEnv) * 0.03;\n// at d=0, startDropout can never be 1, so dropoutHold stays 0,\n// dropoutTarget stays 1, and dropoutEnv converges to and stays at 1\n\n// ==========================================================\n// 4. Combine distortion + dropout gating\n// ==========================================================\nfragmented = distorted * dropoutEnv;\n\n// ==========================================================\n// 5. Output\n// ==========================================================\nout1 = clamp(fragmented, -1, 1); // == clamp(in1,-1,1) exactly when d=0",
+                    "fontface": 0,
+                    "fontname": "<Monospaced>",
+                    "fontsize": 12.0,
+                    "id": "obj-5",
+                    "maxclass": "codebox",
+                    "numinlets": 1,
+                    "numoutlets": 1,
+                    "outlettype": [ "" ],
+                    "patching_rect": [ 24.0, 74.0, 469.0, 286.0 ]
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-1",
+                    "maxclass": "newobj",
+                    "numinlets": 0,
+                    "numoutlets": 1,
+                    "outlettype": [ "" ],
+                    "patching_rect": [ 24.0, 20.0, 28.0, 22.0 ],
+                    "text": "in 1"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-4",
+                    "maxclass": "newobj",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 24.0, 386.0, 35.0, 22.0 ],
+                    "text": "out 1"
+                }
+            }
+        ],
+        "lines": [
+            {
+                "patchline": {
+                    "destination": [ "obj-5", 0 ],
+                    "source": [ "obj-1", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-4", 0 ],
+                    "source": [ "obj-5", 0 ]
+                }
+            }
+        ]
+    }
+}
