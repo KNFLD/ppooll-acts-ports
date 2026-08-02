@@ -1,0 +1,81 @@
+{
+    "patcher": {
+        "fileversion": 1,
+        "appversion": {
+            "major": 9,
+            "minor": 1,
+            "revision": 4,
+            "architecture": "x64",
+            "modernui": 1
+        },
+        "classnamespace": "dsp.gen",
+        "rect": [ 70.0, 102.0, 746.0, 667.0 ],
+        "boxes": [
+            {
+                "box": {
+                    "code": "// ===== EMS SYNTHI-STYLE GENERATIVE DRONE VOICE (STEREO, AUTOPAN) =====\n\nParam base_pitch(110);\nParam fm_amount(0);\nParam shape_osc1(0);\nParam shape_osc2(0.5);\nParam cutoff(800);\nParam resonance(0.3);\nParam pan_rate(0.1);\n\nHistory bp_smooth(110);\nHistory fm_smooth(0);\nHistory sh1_smooth(0);\nHistory sh2_smooth(0.5);\nHistory cf_smooth(800);\nHistory rs_smooth(0.3);\nHistory pr_smooth(0.1);\n\nHistory phase_sel1(0.1234);\nHistory phase_sel2(0.5732);\n\nHistory posc1(0);\nHistory posc2(0);\n\nHistory pan_lfo_phase(0);\n\nHistory lp1L(0);\nHistory lp2L(0);\nHistory lp3L(0);\nHistory lp4L(0);\n\nHistory lp1R(0);\nHistory lp2R(0);\nHistory lp3R(0);\nHistory lp4R(0);\n\nhit = abs(in1) > 0.5;\n\nbp_smooth = bp_smooth + 0.002*(base_pitch - bp_smooth);\nfm_smooth = fm_smooth + 0.002*(fm_amount - fm_smooth);\nsh1_smooth = sh1_smooth + 0.002*(shape_osc1 - sh1_smooth);\nsh2_smooth = sh2_smooth + 0.002*(shape_osc2 - sh2_smooth);\ncf_smooth = cf_smooth + 0.002*(cutoff - cf_smooth);\nrs_smooth = rs_smooth + 0.002*(resonance - rs_smooth);\npr_smooth = pr_smooth + 0.002*(pan_rate - pr_smooth);\n\nnewphase1 = fract(phase_sel1 + 0.6180339887498949);\nphase_sel1 = hit ? newphase1 : phase_sel1;\n\nnewphase2 = fract(phase_sel2*1.3 + 1.4142135623730951);\nphase_sel2 = hit ? newphase2 : phase_sel2;\n\nslot1 = floor(phase_sel1*8);\nslot2 = floor(phase_sel2*8);\n\nmult1 = slot1==0 ? 1 :\n        slot1==1 ? 2 :\n        slot1==2 ? 3 :\n        slot1==3 ? 4 :\n        slot1==4 ? 5 :\n        slot1==5 ? 6 :\n        slot1==6 ? 8 : 1.5;\n\nmult2 = slot2==0 ? 1 :\n        slot2==1 ? 2 :\n        slot2==2 ? 3 :\n        slot2==3 ? 4 :\n        slot2==4 ? 5 :\n        slot2==5 ? 6 :\n        slot2==6 ? 8 : 1.5;\n\nfreq1 = bp_smooth*mult1;\nposc1 = fract(posc1 + freq1/samplerate);\n\ntri1 = abs(fract(posc1)-0.5)*4-1;\nsaw1 = fract(posc1)*2-1;\nosc1 = tri1*(1-sh1_smooth) + saw1*sh1_smooth;\n\nfreq2base = bp_smooth*mult2;\nfreq2 = freq2base*(1+osc1*fm_smooth);\nposc2 = fract(posc2 + freq2/samplerate);\n\npw = clip(sh2_smooth, 0.02, 0.98);\nosc2 = fract(posc2) > pw ? 1 : -1;\n\npan_lfo_phase = fract(pan_lfo_phase + pr_smooth/samplerate);\nlfo = sin(pan_lfo_phase*twopi);\n\npan1 = lfo;\npan2 = -lfo;\n\nangle1 = (pan1+1)*halfpi*0.5;\ngainL1 = cos(angle1);\ngainR1 = sin(angle1);\n\nangle2 = (pan2+1)*halfpi*0.5;\ngainL2 = cos(angle2);\ngainR2 = sin(angle2);\n\nmixL = osc1*gainL1 + osc2*gainL2;\nmixR = osc1*gainR1 + osc2*gainR2;\n\ng = clip(cf_smooth/(samplerate*0.5), 0.001, 0.9);\nfb = clip(rs_smooth*4, 0, 4);\n\ndrive_inL = tanh(mixL - fb*lp4L);\n\nlp1L = lp1L + g*(drive_inL - lp1L);\nlp1L = tanh(lp1L);\nlp2L = lp2L + g*(lp1L - lp2L);\nlp2L = tanh(lp2L);\nlp3L = lp3L + g*(lp2L - lp3L);\nlp3L = tanh(lp3L);\nlp4L = lp4L + g*(lp3L - lp4L);\nlp4L = tanh(lp4L);\n\ndrive_inR = tanh(mixR - fb*lp4R);\n\nlp1R = lp1R + g*(drive_inR - lp1R);\nlp1R = tanh(lp1R);\nlp2R = lp2R + g*(lp1R - lp2R);\nlp2R = tanh(lp2R);\nlp3R = lp3R + g*(lp2R - lp3R);\nlp3R = tanh(lp3R);\nlp4R = lp4R + g*(lp3R - lp4R);\nlp4R = tanh(lp4R);\n\nout1 = lp4L;\nout2 = lp4R;",
+                    "fontface": 0,
+                    "fontname": "<Monospaced>",
+                    "fontsize": 12.0,
+                    "id": "obj-6",
+                    "maxclass": "codebox",
+                    "numinlets": 1,
+                    "numoutlets": 2,
+                    "outlettype": [ "", "" ],
+                    "patching_rect": [ 20.0, 51.0, 701.0, 571.0 ]
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-5",
+                    "maxclass": "newobj",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 702.0, 634.0, 35.0, 22.0 ],
+                    "text": "out 2"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-1",
+                    "maxclass": "newobj",
+                    "numinlets": 0,
+                    "numoutlets": 1,
+                    "outlettype": [ "" ],
+                    "patching_rect": [ 19.5, 11.0, 28.0, 22.0 ],
+                    "text": "in 1"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-4",
+                    "maxclass": "newobj",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 20.0, 634.0, 35.0, 22.0 ],
+                    "text": "out 1"
+                }
+            }
+        ],
+        "lines": [
+            {
+                "patchline": {
+                    "destination": [ "obj-6", 0 ],
+                    "source": [ "obj-1", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-4", 0 ],
+                    "source": [ "obj-6", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-5", 0 ],
+                    "source": [ "obj-6", 1 ]
+                }
+            }
+        ]
+    }
+}
